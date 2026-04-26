@@ -65,10 +65,7 @@ def parse_cli_args():
 def resolve_base_url(cli_value):
     raw = "" if cli_value is None else str(cli_value).strip()
     if not raw or raw.lower() in {"auto", "__use_env__"}:
-        env_model_base_url = parse_optional_text_arg(os.getenv("MODEL_BASE_URL") or "none")
-        if env_model_base_url is not None:
-            return env_model_base_url
-        return parse_optional_text_arg(os.getenv("OPENAI_BASE_URL") or "none")
+        return None
     if raw.lower() in {"none", "null"}:
         return None
     return raw
@@ -761,11 +758,11 @@ def main():
 
     MODEL_BASE_URL = resolve_base_url(args.base_url)
 
-    api_key = os.getenv("OPENAI_API_KEY") or os.getenv("MODEL_API_KEY")
+    api_key = os.getenv("OPENAI_API_KEY")
     if not api_key and MODEL_BASE_URL is not None:
         api_key = "not-needed"
     if not api_key:
-        raise ValueError("OPENAI_API_KEY nije pronadjen u .env fajlu (ili MODEL_API_KEY).")
+        raise ValueError("OPENAI_API_KEY nije pronadjen u .env fajlu.")
 
     train_path = Path(args.train_path)
     input_path = Path(args.test_path)

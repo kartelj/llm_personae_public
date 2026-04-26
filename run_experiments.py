@@ -1,7 +1,6 @@
 import argparse
 import csv
 import json
-import os
 import subprocess
 import sys
 import time
@@ -10,14 +9,11 @@ from itertools import product
 from pathlib import Path
 
 import pandas as pd
-from dotenv import load_dotenv
 
 from pipeline_utils import (
     config_value_to_tag,
     load_csv_clean,
-    parse_optional_float_arg,
     parse_optional_int_arg,
-    parse_optional_text_arg,
     result_suffix,
 )
 
@@ -42,8 +38,6 @@ RETURN_REASON_VALUES = [True, False]
 USE_CONTRAST_DISTRIBUTION_VALUES = [False]
 DEFAULT_TEST_N = None
 
-load_dotenv()
-
 
 LLM_REQUEST_CONFIGS = {
     "gpt-4.1-mini": {"reasoning_effort": None, "temperature": 0},
@@ -51,19 +45,6 @@ LLM_REQUEST_CONFIGS = {
     "gpt-5-mini": {"reasoning_effort": "high", "temperature": None},
     "gpt-5.4-mini": {"reasoning_effort": "high", "temperature": None},
 }
-
-
-ENV_MODEL_NAME = parse_optional_text_arg(os.getenv("MODEL_NAME") or "none")
-ENV_MODEL_BASE_URL = parse_optional_text_arg(os.getenv("MODEL_BASE_URL") or "none")
-ENV_MODEL_REASONING_EFFORT = parse_optional_text_arg(os.getenv("MODEL_REASONING_EFFORT") or "none")
-ENV_MODEL_TEMPERATURE = parse_optional_float_arg(os.getenv("MODEL_TEMPERATURE") or "0")
-
-if ENV_MODEL_NAME is not None:
-    LLM_REQUEST_CONFIGS[ENV_MODEL_NAME] = {
-        "reasoning_effort": ENV_MODEL_REASONING_EFFORT,
-        "temperature": ENV_MODEL_TEMPERATURE,
-        "base_url": ENV_MODEL_BASE_URL,
-    }
 
 
 def parse_cli_args():
@@ -335,8 +316,6 @@ def main():
     print(f"Zbirni CSV: {results_csv}")
     print(f"Persona train summary: {persona_train_path}")
     print(f"Persona test summary: {persona_test_path}")
-    if ENV_MODEL_NAME is not None:
-        print(f"Env model dodat iz .env: {ENV_MODEL_NAME} | base_url={ENV_MODEL_BASE_URL}")
 
     for run_index, run in enumerate(runs, start=1):
         started_at = datetime.now().isoformat(timespec="seconds")
